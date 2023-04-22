@@ -28,13 +28,6 @@ steps:
     backendAzureRmStorageAccountName: 'azuredevopsmsm'
     backendAzureRmContainerName: 'terraform'
     backendAzureRmKey: 'terraform.tfstate'
-- task: AzurePowerShell@5
-  inputs:
-    azureSubscription: 'Terraform App Connection'
-    ScriptType: 'FilePath'
-    ScriptPath: './scripts-pws/delete-rsv-rg.ps1'
-    azurePowerShellVersion: 'LatestVersion'
-    errorActionPreference: 'Continue'
 - task: TerraformTaskV4@4
   inputs:
     provider: 'azurerm'
