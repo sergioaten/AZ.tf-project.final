@@ -1,0 +1,50 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger: none
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- script: echo Hello, world!
+  displayName: 'Run a one-line script'
+
+- script: |
+    echo Add other tasks to build, test, and deploy your project.
+    echo See https://aka.ms/yaml
+  displayName: 'Run a multi-line script'
+- task: TerraformInstaller@1
+  inputs:
+    terraformVersion: 'latest'
+- task: TerraformTaskV4@4
+  inputs:
+    provider: 'azurerm'
+    command: 'init'
+    backendServiceArm: 'Terraform App Connection'
+    backendAzureRmResourceGroupName: 'azure-devops'
+    backendAzureRmStorageAccountName: 'azuredevopsmsm'
+    backendAzureRmContainerName: 'terraform'
+    backendAzureRmKey: 'terraform.tfstate'
+- task: AzurePowerShell@5
+  inputs:
+    azureSubscription: 'Terraform App Connection'
+    ScriptType: 'FilePath'
+    ScriptPath: './scripts-pws/delete-rsv-rg.ps1'
+    azurePowerShellVersion: 'LatestVersion'
+    errorActionPreference: 'Continue'
+- task: TerraformTaskV4@4
+  inputs:
+    provider: 'azurerm'
+    command: 'destroy'
+    environmentServiceNameAzureRM: 'Terraform App Connection'
+- task: AzureCLI@2
+  inputs:
+    azureSubscription: 'Terraform App Connection'
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: 'az group delete --name TF-Project --yes'
+    powerShellErrorActionPreference: 'continue'
+    addSpnToEnvironment: true
